@@ -9,18 +9,22 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.content_main.*
+import java.util.*
+import android.icu.text.SimpleDateFormat
+
 
 class MainActivity : AppCompatActivity() {
-
+    var currentSpeaker : String = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
         secondSpeechButton.setOnClickListener { view ->
-            startSpeechActivity(view, "eng")
+            startSpeechActivity(view, "en_US", user2Name.text.toString())
         }
         firstSpeechButton.setOnClickListener { view ->
-            startSpeechActivity(view, "ar-JO")
+            startSpeechActivity(view, "ar_IL", user1Name.text.toString())
 
         }
     }
@@ -41,7 +45,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun startSpeechActivity(view: View?, inputLanguage: String) {
+    private fun startSpeechActivity(view: View?, inputLanguage: String, speaker: String) {
+        this.currentSpeaker = speaker
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         intent.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
@@ -52,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         if (intent.resolveActivity(packageManager) != null) {
             startActivityForResult(intent, 10)
         } else {
-            Toast.makeText(this, "Your Device Don't Support Speech Input", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Your Device Doesn't Support Speech Input", Toast.LENGTH_SHORT)
                 .show()
         }
     }
@@ -70,7 +75,11 @@ class MainActivity : AppCompatActivity() {
                 val result = data.getStringArrayListExtra(
                     RecognizerIntent.EXTRA_RESULTS
                 )
-                speechResultTextView.text = result[0]
+                val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                val currentDateandTime = sdf.format(Date())
+                var translatedResult = result[0]
+                var speaker = this.currentSpeaker
+                speechResultTextView.text = speechResultTextView.text.toString() + "\n$speaker: $translatedResult $currentDateandTime"
             }
         }
     }
