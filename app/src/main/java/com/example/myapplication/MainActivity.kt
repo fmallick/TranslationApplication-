@@ -1,31 +1,27 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
+import android.speech.RecognizerIntent
 import android.view.Menu
 import android.view.MenuItem
-
-import kotlinx.android.synthetic.main.activity_main.*
+import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main_copy)
-        setSupportActionBar(toolbar)
+        setContentView(R.layout.activity_main)
 
-        welcomeTextView.text = "Welcome to the Translation App"
-
-        startTranslationButton.setOnClickListener { view ->
-            Snackbar.make(view, "This is my action on button click", Snackbar.LENGTH_LONG)
-
-                .setAction("Action", null).show()
+        secondSpeechButton.setOnClickListener { view ->
+            startSpeechActivity(view, "eng")
         }
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+        firstSpeechButton.setOnClickListener { view ->
+            startSpeechActivity(view, "ar-JO")
+
         }
     }
 
@@ -42,6 +38,40 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun startSpeechActivity(view: View?, inputLanguage: String) {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, inputLanguage)
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivityForResult(intent, 10)
+        } else {
+            Toast.makeText(this, "Your Device Don't Support Speech Input", Toast.LENGTH_SHORT)
+                .show()
+        }
+    }
+
+
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            10 -> if (resultCode == RESULT_OK && data != null) {
+                val result = data.getStringArrayListExtra(
+                    RecognizerIntent.EXTRA_RESULTS
+                )
+                speechResultTextView.text = result[0]
+            }
         }
     }
 }
