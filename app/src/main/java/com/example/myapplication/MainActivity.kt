@@ -15,18 +15,24 @@ import android.icu.text.SimpleDateFormat
 
 class MainActivity : AppCompatActivity() {
     var currentSpeaker : String = ""
+    private val languageStore: LanguageDataStore = LanguageDataStore()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
-        secondSpeechButton.setOnClickListener { view ->
-            startSpeechActivity(view, "en_US", user2Name.text.toString())
-        }
         firstSpeechButton.setOnClickListener { view ->
-            startSpeechActivity(view, "ar_IL", user1Name.text.toString())
+            val language1Selected = spinner1.selectedItem.toString()
+            val code = languageStore.getLangaugeCodeByLangKey(language1Selected)
+            startSpeechActivity(view, code, user1Name.text.toString())
 
         }
+        secondSpeechButton.setOnClickListener { view ->
+            val language2Selected = spinner2.selectedItem.toString()
+            val code = languageStore.getLangaugeCodeByLangKey(language2Selected)
+            startSpeechActivity(view, code, user2Name.text.toString())
+        }
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
