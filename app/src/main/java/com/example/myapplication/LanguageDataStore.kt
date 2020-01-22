@@ -1,138 +1,144 @@
 package com.example.myapplication
 
-public class LanguageDataStore {
+ object LanguageDataStore {
 
-    fun getLangaugeCodeByLangKey(languageKey : String) : String{
-        var value = this.getSupportedLanguageByRecognizer()[languageKey]
-        if(value != null) return value else return ""
-    }
-    fun getSupportedLanguageByRecognizer() : HashMap<String, String> {
+     private var supportedSpeechRecognizerLanguages: HashMap<String, String>
+     private var supportedGoogleLanguages: HashMap<String, String>
 
-        var hashMap : HashMap<String, String>
-                = HashMap<String, String> ()
-        hashMap.put("English, US","en_US")
-        hashMap.put("English, Australia","en_AU")
-        hashMap.put("English, Britain","en_GB")
-        hashMap.put("English, Canada","en_CA")
-        hashMap.put("English, New Zealand","en_NZ")
-        hashMap.put("English, Singapore","en_SG")
-        hashMap.put("English, India","en_IN")
-        hashMap.put("English, Ireland","en_IE")
-        hashMap.put("English, Zimbabwe","en_ZA")
-        hashMap.put("German, Germany","de_DE")
-        hashMap.put("Chinese, PRC","zh_CN")
-        hashMap.put("Chinese, Taiwan","zh_TW")
-        hashMap.put("Czech, Czech Republic","cs_CZ")
-        hashMap.put("Dutch, Belgium","nl_BE")
-        hashMap.put("Dutch, Netherlands","nl_NL")
-        hashMap.put("French, Belgium","fr_BE")
-        hashMap.put("French, Canada","fr_CA")
-        hashMap.put("French, France","fr_FR")
-        hashMap.put("French, Switzerland","fr_CH")
-        hashMap.put("German, Austria","de_AT")
-        hashMap.put("German, Liechtenstein","de_LI")
-        hashMap.put("German, Switzerland","de_CH")
-        hashMap.put("Italian, Italy","it_IT")
-        hashMap.put("Italian, Switzerland","it_CH")
-        hashMap.put("Japanese","ja_JP")
-        hashMap.put("Korean","ko_KR")
-        hashMap.put("Polish","pl_PL")
-        hashMap.put("Russian","ru_RU")
-        hashMap.put("Spanish","es_ES")
-        hashMap.put("Arabic, Egypt","ar_EG")
-        hashMap.put("Arabic, Israel","ar_IL")
-        hashMap.put("Bulgarian, Bulgaria","bg_BG")
-        hashMap.put("Catalan, Spain","ca_ES")
-        hashMap.put("Croatian, Croatia","hr_HR")
-        hashMap.put("Danish, Denmark","da_DK")
-        hashMap.put("Finnish, Finland","fi_FI")
-        hashMap.put("Greek, Greece","el_GR")
-        hashMap.put("Hebrew, Israel","iw_IL")
-        hashMap.put("Hindi, India","hi_IN")
-        hashMap.put("Hungarian, Hungary","hu_HU")
-        hashMap.put("Indonesian, Indonesia","in_ID")
-        hashMap.put("Latvian, Latvia","lv_LV")
-        hashMap.put("Lithuanian, Lithuania","lt_LT")
-        hashMap.put("Norwegian-Bokmol, Norway","nb_NO")
-        hashMap.put("Portuguese, Brazil","pt_BR")
-        hashMap.put("Portuguese, Portugal","pt_PT")
-        hashMap.put("Romanian, Romania","ro_RO")
-        hashMap.put("Serbian","sr_RS")
-        hashMap.put("Slovak, Slovakia","sk_SK")
-        hashMap.put("Slovenian, Slovenia","sl_SI")
-        hashMap.put("Spanish, US","es_US")
-        hashMap.put("Swedish, Sweden","sv_SE")
-        hashMap.put("Tagalog, Philippines","tl_PH")
-        hashMap.put("Thai, Thailand","th_TH")
-        hashMap.put("Turkish, Turkey","tr_TR")
-        hashMap.put("Ukrainian, Ukraine","uk_UA")
-        hashMap.put("Vietnamese, Vietnam","vi_VN")
+     init {
+         supportedSpeechRecognizerLanguages = initializeSupportedSpeechRecognizerLanguages()
+         supportedGoogleLanguages = initializeSupportedGoogleLanguages()
+     }
 
-        return hashMap;
+    fun fetchCodeForSpeechRecognizer(languageKey : String) : String{
+        val value = supportedSpeechRecognizerLanguages[languageKey]
+        return value ?: "en_US"
     }
 
-    fun getSupportedLanguageByGoogle(): HashMap<String, String> {
-        var hashMap : HashMap<String, String>
-                = HashMap<String, String> ()
-        hashMap.put("English, US","en")
-        hashMap.put("English, Australia","en")
-        hashMap.put("English, Britain","en")
-        hashMap.put("English, Canada","en")
-        hashMap.put("English, New Zealand","en")
-        hashMap.put("English, Singapore","en")
-        hashMap.put("English, India","en")
-        hashMap.put("English, Ireland","en")
-        hashMap.put("English, Zimbabwe","en")
-        hashMap.put("German, Germany","de")
-        hashMap.put("Chinese, PRC","zh")
-        hashMap.put("Chinese, Taiwan","zh")
-        hashMap.put("Czech, Czech Republic","cs")
-        hashMap.put("Dutch, Belgium","nl")
-        hashMap.put("Dutch, Netherlands","nl")
-        hashMap.put("French, Belgium","fr")
-        hashMap.put("French, Canada","fr")
-        hashMap.put("French, France","fr")
-        hashMap.put("French, Switzerland","fr")
-        hashMap.put("German, Austria","de")
-        hashMap.put("German, Liechtenstein","de")
-        hashMap.put("German, Switzerland","de")
-        hashMap.put("Italian, Italy","it")
-        hashMap.put("Italian, Switzerland","it")
-        hashMap.put("Japanese","ja")
-        hashMap.put("Korean","ko")
-        hashMap.put("Polish","pl")
-        hashMap.put("Russian","ru")
-        hashMap.put("Spanish","es")
-        hashMap.put("Arabic, Egypt","ar")
-        hashMap.put("Arabic, Israel","ar")
-        hashMap.put("Bulgarian, Bulgaria","bg")
-        hashMap.put("Catalan, Spain","ca")
-        hashMap.put("Croatian, Croatia","hr")
-        hashMap.put("Danish, Denmark","da")
-        hashMap.put("Finnish, Finland","fi")
-        hashMap.put("Greek, Greece","el")
-        hashMap.put("Hebrew, Israel","iw")
-        hashMap.put("Hindi, India","hi")
-        hashMap.put("Hungarian, Hungary","hu")
-        hashMap.put("Indonesian, Indonesia","in")
-        hashMap.put("Latvian, Latvia","lv")
-        hashMap.put("Lithuanian, Lithuania","lt")
-        hashMap.put("Norwegian-Bokmol, Norway","nb")
-        hashMap.put("Portuguese, Brazil","pt")
-        hashMap.put("Portuguese, Portugal","pt")
-        hashMap.put("Romanian, Romania","ro")
-        hashMap.put("Serbian","sr")
-        hashMap.put("Slovak, Slovakia","sk")
-        hashMap.put("Slovenian, Slovenia","sl")
-        hashMap.put("Spanish, US","es")
-        hashMap.put("Swedish, Sweden","sv")
-        hashMap.put("Tagalog, Philippines","tl")
-        hashMap.put("Thai, Thailand","th")
-        hashMap.put("Turkish, Turkey","tr")
-        hashMap.put("Ukrainian, Ukraine","uk")
-        hashMap.put("Vietnamese, Vietnam","vi")
+     fun fetchCodeForGoogleTranslator(languageKey : String) : String{
+        val value = supportedGoogleLanguages[languageKey]
+        return value ?: "en"
+    }
+    private fun initializeSupportedSpeechRecognizerLanguages() : HashMap<String, String> {
 
+        return mapOf(
+            "English, US" to "en_US",
+            "English, Australia" to "en_AU",
+            "English, Britain" to "en_GB",
+            "English, Canada" to "en_CA",
+            "English, New Zealand" to "en_NZ",
+            "English, Singapore" to "en_SG",
+            "English, India" to "en_IN",
+            "English, Ireland" to "en_IE",
+            "English, Zimbabwe" to "en_ZA",
+            "German, Germany" to "de_DE",
+            "Chinese, PRC" to "zh_CN",
+            "Chinese, Taiwan" to "zh_TW",
+            "Czech, Czech Republic" to "cs_CZ",
+            "Dutch, Belgium" to "nl_BE",
+            "Dutch, Netherlands" to "nl_NL",
+            "French, Belgium" to "fr_BE",
+            "French, Canada" to "fr_CA",
+            "French, France" to "fr_FR",
+            "French, Switzerland" to "fr_CH",
+            "German, Austria" to "de_AT",
+            "German, Liechtenstein" to "de_LI",
+            "German, Switzerland" to "de_CH",
+            "Italian, Italy" to "it_IT",
+            "Italian, Switzerland" to "it_CH",
+            "Japanese" to "ja_JP",
+            "Korean" to "ko_KR",
+            "Polish" to "pl_PL",
+            "Russian" to "ru_RU",
+            "Spanish" to "es_ES",
+            "Arabic, Egypt" to "ar_EG",
+            "Arabic, Israel" to "ar_IL",
+            "Bulgarian, Bulgaria" to "bg_BG",
+            "Catalan, Spain" to "ca_ES",
+            "Croatian, Croatia" to "hr_HR",
+            "Danish, Denmark" to "da_DK",
+            "Finnish, Finland" to "fi_FI",
+            "Greek, Greece" to "el_GR",
+            "Hebrew, Israel" to "iw_IL",
+            "Hindi, India" to "hi_IN",
+            "Hungarian, Hungary" to "hu_HU",
+            "Indonesian, Indonesia" to "in_ID",
+            "Latvian, Latvia" to "lv_LV",
+            "Lithuanian, Lithuania" to "lt_LT",
+            "Norwegian-Bokmol, Norway" to "nb_NO",
+            "Portuguese, Brazil" to "pt_BR",
+            "Portuguese, Portugal" to "pt_PT",
+            "Romanian, Romania" to "ro_RO",
+            "Serbian" to "sr_RS",
+            "Slovak, Slovakia" to "sk_SK",
+            "Slovenian, Slovenia" to "sl_SI",
+            "Spanish, US" to "es_US",
+            "Swedish, Sweden" to "sv_SE",
+            "Tagalog, Philippines" to "tl_PH",
+            "Thai, Thailand" to "th_TH",
+            "Turkish, Turkey" to "tr_TR",
+            "Ukrainian, Ukraine" to "uk_UA",
+             "Vietnamese, Vietnam" to "vi_VN") as HashMap<String, String>
+    }
 
-        return hashMap;
+    private fun initializeSupportedGoogleLanguages(): HashMap<String, String> {
+        return mapOf(
+            "English, US" to "en",
+            "English, Australia" to "en",
+            "English, Britain" to "en",
+            "English, Canada" to "en",
+            "English, New Zealand" to "en",
+            "English, Singapore" to "en",
+            "English, India" to "en",
+            "English, Ireland" to "en",
+            "English, Zimbabwe" to "en",
+            "German, Germany" to "de",
+            "Chinese, PRC" to "zh",
+            "Chinese, Taiwan" to "zh",
+            "Czech, Czech Republic" to "cs",
+            "Dutch, Belgium" to "nl",
+            "Dutch, Netherlands" to "nl",
+            "French, Belgium" to "fr",
+            "French, Canada" to "fr",
+            "French, France" to "fr",
+            "French, Switzerland" to "fr",
+            "German, Austria" to "de",
+            "German, Liechtenstein" to "de",
+            "German, Switzerland" to "de",
+            "Italian, Italy" to "it",
+            "Italian, Switzerland" to "it",
+            "Japanese" to "ja",
+            "Korean" to "ko",
+            "Polish" to "pl",
+            "Russian" to "ru",
+            "Spanish" to "es",
+            "Arabic, Egypt" to "ar",
+            "Arabic, Israel" to "ar",
+            "Bulgarian, Bulgaria" to "bg",
+            "Catalan, Spain" to "ca",
+            "Croatian, Croatia" to "hr",
+            "Danish, Denmark" to "da",
+            "Finnish, Finland" to "fi",
+            "Greek, Greece" to "el",
+            "Hebrew, Israel" to "iw",
+            "Hindi, India" to "hi",
+            "Hungarian, Hungary" to "hu",
+            "Indonesian, Indonesia" to "in",
+            "Latvian, Latvia" to "lv",
+            "Lithuanian, Lithuania" to "lt",
+            "Norwegian-Bokmol, Norway" to "nb",
+            "Portuguese, Brazil" to "pt",
+            "Portuguese, Portugal" to "pt",
+            "Romanian, Romania" to "ro",
+            "Serbian" to "sr",
+            "Slovak, Slovakia" to "sk",
+            "Slovenian, Slovenia" to "sl",
+            "Spanish, US" to "es",
+            "Swedish, Sweden" to "sv",
+            "Tagalog, Philippines" to "tl",
+            "Thai, Thailand" to "th",
+            "Turkish, Turkey" to "tr",
+            "Ukrainian, Ukraine" to "uk",
+            "Vietnamese, Vietnam" to "vi") as HashMap<String, String>
     }
 }

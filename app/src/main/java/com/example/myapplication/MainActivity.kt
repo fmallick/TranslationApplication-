@@ -15,20 +15,20 @@ import android.icu.text.SimpleDateFormat
 
 class MainActivity : AppCompatActivity() {
     var currentSpeaker : String = ""
-    private val languageStore: LanguageDataStore = LanguageDataStore()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         firstSpeechButton.setOnClickListener { view ->
             val language1Selected = spinner1.selectedItem.toString()
-            val code = languageStore.getLangaugeCodeByLangKey(language1Selected)
+            val code = LanguageDataStore.fetchCodeForSpeechRecognizer(language1Selected)
             startSpeechActivity(view, code, user1Name.text.toString())
 
         }
         secondSpeechButton.setOnClickListener { view ->
             val language2Selected = spinner2.selectedItem.toString()
-            val code = languageStore.getLangaugeCodeByLangKey(language2Selected)
+            val code = LanguageDataStore.fetchCodeForSpeechRecognizer(language2Selected)
             startSpeechActivity(view, code, user2Name.text.toString())
         }
 
@@ -82,10 +82,10 @@ class MainActivity : AppCompatActivity() {
                     RecognizerIntent.EXTRA_RESULTS
                 )
                 val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-                val currentDateandTime = sdf.format(Date())
+                val currentTime = sdf.format(Date())
                 var translatedResult = result[0]
                 var speaker = this.currentSpeaker
-                speechResultTextView.text = speechResultTextView.text.toString() + "\n$speaker: $translatedResult $currentDateandTime"
+                speechResultTextView.text = speechResultTextView.text.toString() + "\n$speaker: $translatedResult $currentTime"
             }
         }
     }
