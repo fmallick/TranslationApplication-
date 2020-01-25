@@ -61,5 +61,7 @@
         <item>Turkish, Turkey </item>
         <item>Ukrainian, Ukraine </item>
         <item>Vietnamese, Vietnam </item>
+
     </string-array>
+    <string name="no_connection">No internet connection! Cannot be translated!</string>
 </resources>

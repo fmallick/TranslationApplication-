@@ -15,6 +15,8 @@ import android.icu.text.SimpleDateFormat
 
 class MainActivity : AppCompatActivity() {
     var currentSpeaker : String = ""
+    var sourceLanguageCode : String = ""
+    var targetLanguageCode : String = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,14 +24,27 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         firstSpeechButton.setOnClickListener { view ->
             val language1Selected = spinner1.selectedItem.toString()
-            val code = LanguageDataStore.fetchCodeForSpeechRecognizer(language1Selected)
-            startSpeechActivity(view, code, user1Name.text.toString())
+            sourceLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language1Selected)
+
+            val language2Selected = spinner2.selectedItem.toString()
+            targetLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language2Selected)
+
+
+            val languageCodeForSpeech =  LanguageDataStore.fetchCodeForSpeechRecognizer(language1Selected)
+            startSpeechActivity(view, languageCodeForSpeech, user1Name.text.toString())
+
 
         }
         secondSpeechButton.setOnClickListener { view ->
             val language2Selected = spinner2.selectedItem.toString()
-            val code = LanguageDataStore.fetchCodeForSpeechRecognizer(language2Selected)
-            startSpeechActivity(view, code, user2Name.text.toString())
+            sourceLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language2Selected)
+
+            val language1Selected = spinner1.selectedItem.toString()
+            targetLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language1Selected)
+
+            val languageCodeForSpeech =  LanguageDataStore.fetchCodeForSpeechRecognizer(language2Selected)
+
+            startSpeechActivity(view, languageCodeForSpeech, user2Name.text.toString())
         }
 
 
@@ -83,9 +98,11 @@ class MainActivity : AppCompatActivity() {
                 )
                 val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
                 val currentTime = sdf.format(Date())
-                var translatedResult = result[0]
+                var translatedResult = GoogleTranslateManager.textToTranslate(result[0],this.sourceLanguageCode,this.targetLanguageCode, resources )
+
+
                 var speaker = this.currentSpeaker
-                speechResultTextView.text = speechResultTextView.text.toString() + "\n$speaker: $translatedResult $currentTime"
+                speechResultTextView.text = speechResultTextView.text.toString() + "\n$speaker ($currentTime): $translatedResult "
             }
         }
     }
