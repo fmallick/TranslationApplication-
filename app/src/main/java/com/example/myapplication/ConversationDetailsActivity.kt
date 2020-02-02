@@ -6,22 +6,52 @@ import android.speech.RecognizerIntent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 import android.icu.text.SimpleDateFormat
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import com.google.protobuf.TextFormat.print
 
 
-class MainActivity : AppCompatActivity() {
+class ConversationDetailsActivity  : AppCompatActivity() {
+
+    private lateinit var firstSpeechButton: ImageView
+    private lateinit var secondSpeechButton: ImageView
+    private lateinit var spinner1: Spinner
+    private lateinit var spinner2: Spinner
+    private lateinit var user1Name: EditText
+    private lateinit var user2Name: EditText
+    private lateinit var speechResultTextView: TextView
+    private lateinit var saveButton: Button
     var currentSpeaker : String = ""
     var sourceLanguageCode : String = ""
     var targetLanguageCode : String = ""
+    var languageValues = ArrayList<String>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        firstSpeechButton = findViewById(R.id.firstSpeechButton)
+        secondSpeechButton = findViewById(R.id.secondSpeechButton)
+        spinner1 = findViewById(R.id.spinner1)
+        spinner2 = findViewById(R.id.spinner2)
+        user1Name = findViewById(R.id.user1Name)
+        user2Name = findViewById(R.id.user2Name)
+        speechResultTextView = findViewById(R.id.speechResultTextView)
+        saveButton = findViewById(R.id.saveButton)
+
+
+        for( value in resources.getStringArray(R.array.languages)) {
+            languageValues.add(value)
+        }
+
+        var converstaion = Conversation(USERNAME1,USERNAME2,USER1_LANG, USER2_LANG,"","")
+        loadUI(converstaion)
+
+
+
         firstSpeechButton.setOnClickListener { view ->
             val language1Selected = spinner1.selectedItem.toString()
             sourceLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language1Selected)
@@ -32,8 +62,6 @@ class MainActivity : AppCompatActivity() {
 
             val languageCodeForSpeech =  LanguageDataStore.fetchCodeForSpeechRecognizer(language1Selected)
             startSpeechActivity(view, languageCodeForSpeech, user1Name.text.toString())
-
-
         }
         secondSpeechButton.setOnClickListener { view ->
             val language2Selected = spinner2.selectedItem.toString()
@@ -47,7 +75,32 @@ class MainActivity : AppCompatActivity() {
             startSpeechActivity(view, languageCodeForSpeech, user2Name.text.toString())
         }
 
+        saveButton.setOnClickListener{ view ->
+            var conversation = CreateConverstaionModel()
+            print("")
 
+        }
+
+    }
+
+    private fun loadUI(conversation: Conversation) {
+        // TODO We need to update the conversation data to UI
+        user1Name.setText(conversation.user1)
+        user2Name.setText(conversation.user2)
+        speechResultTextView.text = conversation.translatedText
+        spinner1.setSelection(languageValues.indexOf(conversation.user1Language))
+        spinner2.setSelection(languageValues.indexOf(conversation.user2Language))
+
+    }
+
+    private fun CreateConverstaionModel() : Conversation {
+        val language1 = spinner1.selectedItem.toString()
+        val language2 = spinner2.selectedItem.toString()
+        val user1 = user1Name.text.toString()?: "User1"
+        val user2 = user2Name.text.toString() ?: "User2"
+        val translatedText = speechResultTextView.text.toString() ?: ""
+
+        return Conversation(user1,user2,language1,language2,translatedText,"")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -105,5 +158,14 @@ class MainActivity : AppCompatActivity() {
                 speechResultTextView.text = speechResultTextView.text.toString() + "\n$speaker ($currentTime): $translatedResult "
             }
         }
+    }
+
+    companion object{
+
+        const val USERNAME1 = "John Doe"
+        const val USERNAME2 = "John Fella"
+        const val USER1_LANG = "English, US"
+        const val USER2_LANG = "English, US"
+
     }
 }
