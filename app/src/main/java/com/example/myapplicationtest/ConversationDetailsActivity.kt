@@ -18,6 +18,7 @@ import com.google.firebase.database.ValueEventListener
 
 class ConversationDetailsActivity  : AppCompatActivity() {
 
+    // Views
     private lateinit var firstSpeechButton: ImageView
     private lateinit var secondSpeechButton: ImageView
     private lateinit var spinner1: Spinner
@@ -26,16 +27,64 @@ class ConversationDetailsActivity  : AppCompatActivity() {
     private lateinit var user2Name: EditText
     private lateinit var speechResultTextView: TextView
     private lateinit var saveButton: Button
-    var currentSpeaker : String = ""
-    var sourceLanguageCode : String = ""
-    var targetLanguageCode : String = ""
-    var languageValues = ArrayList<String>()
+
+    // other members
+    var mConversationID : String = ""
+    var mCurrentSpeaker : String = ""
+    var mSourceLanguageCode : String = ""
+    var mTargetLanguageCode : String = ""
+    var mLanguageValues = ArrayList<String>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conversation_details)
 
+       initViews()
+
+        // load from firebase
+        fetchConversation(intent.getStringExtra(ConversationID)?:"")
+
+        firstSpeechButton.setOnClickListener { view ->
+            val language1Selected = spinner1.selectedItem.toString()
+            mSourceLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language1Selected)
+
+            val language2Selected = spinner2.selectedItem.toString()
+            mTargetLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language2Selected)
+
+            val languageCodeForSpeech =  LanguageDataStore.fetchCodeForSpeechRecognizer(language1Selected)
+            startSpeechActivity(view, languageCodeForSpeech, user1Name.text.toString())
+        }
+        secondSpeechButton.setOnClickListener { view ->
+            val language2Selected = spinner2.selectedItem.toString()
+            mSourceLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language2Selected)
+
+            val language1Selected = spinner1.selectedItem.toString()
+            mTargetLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language1Selected)
+
+            val languageCodeForSpeech =  LanguageDataStore.fetchCodeForSpeechRecognizer(language2Selected)
+            startSpeechActivity(view, languageCodeForSpeech, user2Name.text.toString())
+        }
+
+        saveButton.setOnClickListener{ view ->
+
+            val conversationDatabase = FirebaseDatabase.getInstance().getReference(CONVERSATION_NOTDE)
+
+            if(mConversationID == null || mConversationID.length == 0) {
+                mConversationID = (conversationDatabase.push()).key.toString()
+            }
+
+            var conversation = createConversationModel(mConversationID)
+            conversationDatabase.child(mConversationID).setValue(conversation)
+
+            // Start List view Activity
+            var intent = Intent(this, ConversationsListActivity::class.java)
+            startActivity(intent)
+        }
+
+    }
+
+    private fun initViews() {
         firstSpeechButton = findViewById(R.id.firstSpeechButton)
         secondSpeechButton = findViewById(R.id.secondSpeechButton)
         spinner1 = findViewById(R.id.spinner1)
@@ -45,57 +94,22 @@ class ConversationDetailsActivity  : AppCompatActivity() {
         speechResultTextView = findViewById(R.id.speechResultTextView)
         saveButton = findViewById(R.id.saveButton)
 
-
-
+        // papulating data
         for( value in resources.getStringArray(R.array.languages)) {
-            languageValues.add(value)
+            mLanguageValues.add(value)
         }
 
         var converstaion = Conversation("", USERNAME1,USERNAME2,USER1_LANG, USER2_LANG,"","")
         loadUI(converstaion)
 
-
-
-        firstSpeechButton.setOnClickListener { view ->
-            val language1Selected = spinner1.selectedItem.toString()
-            sourceLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language1Selected)
-
-            val language2Selected = spinner2.selectedItem.toString()
-            targetLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language2Selected)
-
-
-            val languageCodeForSpeech =  LanguageDataStore.fetchCodeForSpeechRecognizer(language1Selected)
-            startSpeechActivity(view, languageCodeForSpeech, user1Name.text.toString())
-        }
-        secondSpeechButton.setOnClickListener { view ->
-            val language2Selected = spinner2.selectedItem.toString()
-            sourceLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language2Selected)
-
-            val language1Selected = spinner1.selectedItem.toString()
-            targetLanguageCode = LanguageDataStore.fetchCodeForGoogleTranslator(language1Selected)
-
-            val languageCodeForSpeech =  LanguageDataStore.fetchCodeForSpeechRecognizer(language2Selected)
-
-            startSpeechActivity(view, languageCodeForSpeech, user2Name.text.toString())
-        }
-
-
-        // load from firebase
-        fetchConversation(intent.getStringExtra(ConversationsListActivity.ConversationID)?:"")
-
-        saveButton.setOnClickListener{ view ->
-            var conversation = createConversationModel()
-           // save back to fireback
-        }
-
     }
 
 
     private fun fetchConversation(conversationID: String) {
-        val mDatabase = FirebaseDatabase.getInstance()
-        val mDistributorDatabaseReference = mDatabase.getReference("conversations").child(conversationID)
+        mConversationID = conversationID
+        val conversationDatabase = FirebaseDatabase.getInstance().getReference(CONVERSATION_NOTDE).child(mConversationID)
 
-        mDistributorDatabaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+        conversationDatabase.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val conversation = dataSnapshot.getValue<Conversation>(Conversation::class.java)
                 if(conversation != null) {
@@ -111,19 +125,20 @@ class ConversationDetailsActivity  : AppCompatActivity() {
         user1Name.setText(conversation.user1)
         user2Name.setText(conversation.user2)
         speechResultTextView.text = conversation.translatedText
-        spinner1.setSelection(languageValues.indexOf(conversation.user1Language))
-        spinner2.setSelection(languageValues.indexOf(conversation.user2Language))
+        spinner1.setSelection(mLanguageValues.indexOf(conversation.user1Language))
+        spinner2.setSelection(mLanguageValues.indexOf(conversation.user2Language))
 
     }
 
-    private fun createConversationModel() : Conversation {
+    private fun createConversationModel(conversationID: String = "") : Conversation {
+
         val language1 = spinner1.selectedItem.toString()
         val language2 = spinner2.selectedItem.toString()
         val user1 = user1Name.text.toString()?: "User1"
         val user2 = user2Name.text.toString() ?: "User2"
         val translatedText = speechResultTextView.text.toString() ?: ""
 
-        return Conversation("", user1,user2,language1,language2,translatedText,"")
+        return Conversation(conversationID, user1,user2,language1,language2,translatedText,"")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -143,7 +158,7 @@ class ConversationDetailsActivity  : AppCompatActivity() {
     }
 
     private fun startSpeechActivity(view: View?, inputLanguage: String, speaker: String) {
-        this.currentSpeaker = speaker
+        this.mCurrentSpeaker = speaker
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         intent.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
@@ -174,10 +189,10 @@ class ConversationDetailsActivity  : AppCompatActivity() {
                 )
                 val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
                 val currentTime = sdf.format(Date())
-                var translatedResult = GoogleTranslateManager.textToTranslate(result[0],this.sourceLanguageCode,this.targetLanguageCode, resources )
+                var translatedResult = GoogleTranslateManager.textToTranslate(result[0],this.mSourceLanguageCode,this.mTargetLanguageCode, resources )
 
 
-                var speaker = this.currentSpeaker
+                var speaker = this.mCurrentSpeaker
                 speechResultTextView.text = speechResultTextView.text.toString() + "\n$speaker ($currentTime): $translatedResult "
             }
         }

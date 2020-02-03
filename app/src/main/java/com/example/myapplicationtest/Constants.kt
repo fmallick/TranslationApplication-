@@ -1,4 +1,4 @@
 package com.example.myapplicationtest
 
-class Constants {
-}
+const val CONVERSATION_NOTDE = "conversations"
+const val ConversationID = "ConversationID"
