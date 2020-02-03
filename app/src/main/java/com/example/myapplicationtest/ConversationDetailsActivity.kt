@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplicationtest
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,7 +10,10 @@ import java.util.*
 import android.icu.text.SimpleDateFormat
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.google.protobuf.TextFormat.print
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 
 class ConversationDetailsActivity  : AppCompatActivity() {
@@ -31,7 +34,7 @@ class ConversationDetailsActivity  : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_conversation_details)
 
         firstSpeechButton = findViewById(R.id.firstSpeechButton)
         secondSpeechButton = findViewById(R.id.secondSpeechButton)
@@ -43,11 +46,12 @@ class ConversationDetailsActivity  : AppCompatActivity() {
         saveButton = findViewById(R.id.saveButton)
 
 
+
         for( value in resources.getStringArray(R.array.languages)) {
             languageValues.add(value)
         }
 
-        var converstaion = Conversation(USERNAME1,USERNAME2,USER1_LANG, USER2_LANG,"","")
+        var converstaion = Conversation("", USERNAME1,USERNAME2,USER1_LANG, USER2_LANG,"","")
         loadUI(converstaion)
 
 
@@ -75,16 +79,35 @@ class ConversationDetailsActivity  : AppCompatActivity() {
             startSpeechActivity(view, languageCodeForSpeech, user2Name.text.toString())
         }
 
-        saveButton.setOnClickListener{ view ->
-            var conversation = CreateConverstaionModel()
-            print("")
 
+        // load from firebase
+        fetchConversation(intent.getStringExtra(ConversationsListActivity.ConversationID)?:"")
+
+        saveButton.setOnClickListener{ view ->
+            var conversation = createConversationModel()
+           // save back to fireback
         }
 
     }
 
+
+    private fun fetchConversation(conversationID: String) {
+        val mDatabase = FirebaseDatabase.getInstance()
+        val mDistributorDatabaseReference = mDatabase.getReference("conversations").child(conversationID)
+
+        mDistributorDatabaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val conversation = dataSnapshot.getValue<Conversation>(Conversation::class.java)
+                if(conversation != null) {
+                    loadUI(conversation)
+                }
+            }
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+    }
+
     private fun loadUI(conversation: Conversation) {
-        // TODO We need to update the conversation data to UI
+        // TODO update the conversation data to UI
         user1Name.setText(conversation.user1)
         user2Name.setText(conversation.user2)
         speechResultTextView.text = conversation.translatedText
@@ -93,14 +116,14 @@ class ConversationDetailsActivity  : AppCompatActivity() {
 
     }
 
-    private fun CreateConverstaionModel() : Conversation {
+    private fun createConversationModel() : Conversation {
         val language1 = spinner1.selectedItem.toString()
         val language2 = spinner2.selectedItem.toString()
         val user1 = user1Name.text.toString()?: "User1"
         val user2 = user2Name.text.toString() ?: "User2"
         val translatedText = speechResultTextView.text.toString() ?: ""
 
-        return Conversation(user1,user2,language1,language2,translatedText,"")
+        return Conversation("", user1,user2,language1,language2,translatedText,"")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

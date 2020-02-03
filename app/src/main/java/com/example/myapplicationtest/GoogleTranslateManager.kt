@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplicationtest
 
 import android.content.res.Resources
 import android.os.StrictMode
@@ -27,7 +27,7 @@ object GoogleTranslateManager {
          return traslatedText
     }
 
-    // this is for google translator cloud services
+    // this is for the google translator cloud services
 
     private fun getTranslateService(resources: Resources): Translate? {
         var translate : Translate? = null
@@ -61,7 +61,6 @@ object GoogleTranslateManager {
         return  translation.translatedText
 
     }
-
 
 
 
